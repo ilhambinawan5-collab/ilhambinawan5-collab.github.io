@@ -1,1 +1,68 @@
-123
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Tebak Angka</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f8ff;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    input[type="number"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 100px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎯 Game Tebak Angka</h1>
+  <p>Komputer sudah memilih angka antara 1 sampai 100. Coba tebak!</p>
+
+  <input type="number" id="guess" min="1" max="100" />
+  <br>
+  <button onclick="checkGuess()">Tebak!</button>
+
+  <div id="result"></div>
+
+  <script>
+    const secretNumber = Math.floor(Math.random() * 100) + 1;
+    let attempts = 0;
+
+    function checkGuess() {
+      const guess = parseInt(document.getElementById('guess').value);
+      attempts++;
+      const result = document.getElementById('result');
+
+      if (isNaN(guess) || guess < 1 || guess > 100) {
+        result.textContent = "Masukkan angka antara 1 sampai 100!";
+      } else if (guess < secretNumber) {
+        result.textContent = "Terlalu rendah! Coba lagi.";
+      } else if (guess > secretNumber) {
+        result.textContent = "Terlalu tinggi! Coba lagi.";
+      } else {
+        result.textContent = `🎉 Selamat! Kamu menebak dengan benar dalam ${attempts} percobaan.`;
+      }
+    }
+  </script>
+
+</body>
+</html>
+
