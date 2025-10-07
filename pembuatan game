@@ -2,67 +2,125 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Game Tebak Angka</title>
+  <title>Parkour Jump Game</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f8ff;
-      text-align: center;
-      padding: 50px;
+      margin: 0;
+      overflow: hidden;
+      background-color: #87ceeb;
+      font-family: sans-serif;
     }
-    h1 {
-      color: #2c3e50;
+    #game {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(to top, #87ceeb, #ffffff);
     }
-    input[type="number"] {
-      padding: 10px;
-      font-size: 16px;
-      width: 100px;
+    #player {
+      position: absolute;
+      bottom: 50px;
+      left: 50px;
+      width: 50px;
+      height: 50px;
+      background-color: red;
+      border-radius: 10px;
     }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin-top: 10px;
-      cursor: pointer;
+    .obstacle {
+      position: absolute;
+      bottom: 50px;
+      width: 30px;
+      height: 50px;
+      background-color: black;
+      animation: moveObstacle 3s linear infinite;
     }
-    #result {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
+    @keyframes moveObstacle {
+      from { right: -30px; }
+      to { right: 100vw; }
+    }
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 24px;
+      color: #333;
     }
   </style>
 </head>
 <body>
 
-  <h1>🎯 Game Tebak Angka</h1>
-  <p>Komputer sudah memilih angka antara 1 sampai 100. Coba tebak!</p>
+<div id="game">
+  <div id="player"></div>
+  <div id="score">Score: 0</div>
+</div>
 
-  <input type="number" id="guess" min="1" max="100" />
-  <br>
-  <button onclick="checkGuess()">Tebak!</button>
+<script>
+  const player = document.getElementById('player');
+  const game = document.getElementById('game');
+  const scoreDisplay = document.getElementById('score');
+  let isJumping = false;
+  let score = 0;
 
-  <div id="result"></div>
-
-  <script>
-    const secretNumber = Math.floor(Math.random() * 100) + 1;
-    let attempts = 0;
-
-    function checkGuess() {
-      const guess = parseInt(document.getElementById('guess').value);
-      attempts++;
-      const result = document.getElementById('result');
-
-      if (isNaN(guess) || guess < 1 || guess > 100) {
-        result.textContent = "Masukkan angka antara 1 sampai 100!";
-      } else if (guess < secretNumber) {
-        result.textContent = "Terlalu rendah! Coba lagi.";
-      } else if (guess > secretNumber) {
-        result.textContent = "Terlalu tinggi! Coba lagi.";
-      } else {
-        result.textContent = `🎉 Selamat! Kamu menebak dengan benar dalam ${attempts} percobaan.`;
+  function jump() {
+    if (isJumping) return;
+    isJumping = true;
+    let jumpHeight = 0;
+    const up = setInterval(() => {
+      if (jumpHeight >= 100) {
+        clearInterval(up);
+        const down = setInterval(() => {
+          if (jumpHeight <= 0) {
+            clearInterval(down);
+            isJumping = false;
+          }
+          jumpHeight -= 5;
+          player.style.bottom = 50 + jumpHeight + 'px';
+        }, 20);
       }
-    }
-  </script>
+      jumpHeight += 5;
+      player.style.bottom = 50 + jumpHeight + 'px';
+    }, 20);
+  }
+
+  function createObstacle() {
+    const obstacle = document.createElement('div');
+    obstacle.classList.add('obstacle');
+    obstacle.style.right = '-30px';
+    game.appendChild(obstacle);
+
+    const move = setInterval(() => {
+      const obstacleRight = parseInt(obstacle.style.right);
+      obstacle.style.right = obstacleRight + 5 + 'px';
+
+      const playerLeft = player.offsetLeft;
+      const playerRight = playerLeft + player.offsetWidth;
+      const obstacleLeft = game.offsetWidth - (obstacleRight + 30);
+      const obstacleRightEdge = obstacleLeft + 30;
+
+      const playerBottom = parseInt(player.style.bottom);
+      if (
+        playerRight > obstacleLeft &&
+        playerLeft < obstacleRightEdge &&
+        playerBottom < 100
+      ) {
+        alert('Game Over! Skor kamu: ' + score);
+        location.reload();
+        clearInterval(move);
+      }
+
+      if (obstacleRight > game.offsetWidth) {
+        clearInterval(move);
+        game.removeChild(obstacle);
+        score++;
+        scoreDisplay.textContent = 'Score: ' + score;
+      }
+    }, 30);
+  }
+
+  setInterval(createObstacle, 2000);
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') jump();
+  });
+</script>
 
 </body>
 </html>
-
